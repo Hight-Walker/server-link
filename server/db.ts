@@ -719,20 +719,24 @@ class SQLiteCloudDatabase implements IDatabase {
       const deviceColumns = await (this.cloudClient as any).sql('PRAGMA table_info(devices)');
       const hasLegacyName = (Array.isArray(deviceColumns) ? deviceColumns : [deviceColumns])
         .some((column: any) => column?.name === 'name');
+      const hasLegacyToken = (Array.isArray(deviceColumns) ? deviceColumns : [deviceColumns])
+        .some((column: any) => column?.name === 'token');
       const legacyNameColumn = hasLegacyName ? ', name' : '';
       const legacyNameValue = hasLegacyName ? ", 'Scooter Link 001'" : '';
+      const legacyTokenColumn = hasLegacyToken ? ', token' : '';
+      const legacyTokenValue = hasLegacyToken ? `, '${DEFAULT_DEVICE_SECRET_KEY}'` : '';
 
       await this.cloudClient.exec(`
         INSERT OR IGNORE INTO devices (
           id, device_id, device_key_hash, raw_device_key, display_name, status,
           last_seen_at, created_at, updated_at, model, is_online, is_on,
           headlight, turn_signal, signal_rssi, network_registered, theft_mode,
-          firmware_version${legacyNameColumn}
+          firmware_version${legacyNameColumn}${legacyTokenColumn}
         ) VALUES (
           'dev-scooter-001', 'scooter-001', '${defaultHash}', '${DEFAULT_DEVICE_SECRET_KEY}',
           'Scooter Link 001', 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
           CURRENT_TIMESTAMP, 'ESP32-SIM800L-NEO6M', 0, 0, 0, 'off', 0, 0, 0,
-          'v2.1.0-remote'${legacyNameValue}
+          'v2.1.0-remote'${legacyNameValue}${legacyTokenValue}
         );
       `);
 

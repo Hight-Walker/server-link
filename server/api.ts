@@ -830,8 +830,11 @@ apiRouter.post('/devices', requireDashboardAuth, async (req: Request, res: Respo
     // tanto no banco novo quanto no banco ja importado no SQLite Cloud.
     const columns = await db.query<any>('PRAGMA table_info(devices)');
     const hasLegacyName = columns.some((column: any) => column.name === 'name');
+    const hasLegacyToken = columns.some((column: any) => column.name === 'token');
     const nameColumn = hasLegacyName ? ', name' : '';
     const nameValue = hasLegacyName ? ', ?' : '';
+    const tokenColumn = hasLegacyToken ? ', token' : '';
+    const tokenValue = hasLegacyToken ? ', ?' : '';
     const values = [
       devDbId,
       cleanDeviceId,
@@ -853,13 +856,14 @@ apiRouter.post('/devices', requireDashboardAuth, async (req: Request, res: Respo
       nowIso,
     ];
     if (hasLegacyName) values.push(displayName ? displayName.trim() : cleanDeviceId);
+    if (hasLegacyToken) values.push(generatedRawKey);
 
     await db.run(
       `INSERT INTO devices (
         id, device_id, display_name, status, model, sim_number,
         is_online, is_on, headlight, turn_signal, signal_rssi, network_registered,
-        theft_mode, firmware_version, device_key_hash, raw_device_key, last_seen_at, created_at, updated_at${nameColumn}
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?${nameValue})`,
+        theft_mode, firmware_version, device_key_hash, raw_device_key, last_seen_at, created_at, updated_at${nameColumn}${tokenColumn}
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?${nameValue}${tokenValue})`,
       values
     );
 
