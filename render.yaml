@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: scooter-link
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SQLITECLOUD_CONNECTION_STRING
+        sync: false
+      - key: DEVICE_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

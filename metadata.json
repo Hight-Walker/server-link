@@ -1,0 +1,6 @@
+{
+  "name": "Scooter Link",
+  "description": "Sistema completo de rastreamento em tempo real e proteção antifurto para bike elétrica com ESP32, GPS NEO-6M e SIM800L.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
